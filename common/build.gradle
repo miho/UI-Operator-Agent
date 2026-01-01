@@ -1,0 +1,8 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    // Jackson for JSON processing (used by utilities)
+    api "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+}

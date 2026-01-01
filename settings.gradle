@@ -1,0 +1,5 @@
+rootProject.name = 'ui-operator-agent'
+
+include 'common'
+include 'ui-control'
+include 'ui-vision'

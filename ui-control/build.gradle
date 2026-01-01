@@ -1,0 +1,61 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+dependencies {
+    implementation project(':common')
+
+    // MCP SDK
+    implementation platform("io.modelcontextprotocol.sdk:mcp-bom:${mcpSdkVersion}")
+    implementation 'io.modelcontextprotocol.sdk:mcp'
+
+    // Embedded Jetty server for HTTP transport
+    implementation "org.eclipse.jetty:jetty-server:${jettyVersion}"
+    implementation "org.eclipse.jetty:jetty-servlet:${jettyVersion}"
+    implementation 'jakarta.servlet:jakarta.servlet-api:5.0.0'
+
+    // Jackson for JSON processing
+    implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+
+    // CLI argument parsing
+    implementation "info.picocli:picocli:${picocliVersion}"
+}
+
+application {
+    mainClass = 'com.uioperator.control.UiControlMcpServer'
+}
+
+// Fat JAR for standalone execution
+tasks.register('serverJar', Jar) {
+    archiveBaseName.set('ui-control-mcp-server')
+    archiveClassifier.set('all')
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    manifest {
+        attributes 'Main-Class': 'com.uioperator.control.UiControlMcpServer'
+    }
+
+    from sourceSets.main.output
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+// Run server in stdio mode
+tasks.register('runStdio', JavaExec) {
+    group = 'application'
+    description = 'Run MCP Server in stdio mode'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.uioperator.control.UiControlMcpServer'
+    args = ['--stdio']
+}
+
+// Run server in HTTP mode
+tasks.register('runHttp', JavaExec) {
+    group = 'application'
+    description = 'Run MCP Server in HTTP mode'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.uioperator.control.UiControlMcpServer'
+    args = ['--http', '8085']
+}
